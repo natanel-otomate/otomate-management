@@ -1,8 +1,17 @@
 import { NextResponse } from 'next/server';
 import { kv } from '@vercel/kv';
 
+interface HealthStatus {
+  kv_configured: boolean;
+  kv_url_set: boolean;
+  kv_token_set: boolean;
+  environment: string | undefined;
+  kv_connection?: string;
+  kv_error?: string;
+}
+
 export async function GET() {
-  const health = {
+  const health: HealthStatus = {
     kv_configured: !!(
       process.env.KV_REST_API_URL &&
       process.env.KV_REST_API_TOKEN

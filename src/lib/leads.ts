@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { getSupabaseClient } from './supabase';
 
 export interface Lead {
   id: string;
@@ -14,7 +14,7 @@ export interface Lead {
 // Read all leads from Supabase
 export async function getLeads(): Promise<Lead[]> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await getSupabaseClient()
       .from('leads')
       .select('*')
       .order('created_at', { ascending: false });
@@ -34,7 +34,7 @@ export async function getLeads(): Promise<Lead[]> {
 // Add a new lead to Supabase
 export async function addLead(lead: Omit<Lead, 'id' | 'created_at'>): Promise<Lead> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await getSupabaseClient()
       .from('leads')
       .insert([
         {

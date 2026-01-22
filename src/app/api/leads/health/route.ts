@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { getSupabaseClient } from '@/lib/supabase';
 
 interface HealthStatus {
   supabase_configured: boolean;
@@ -25,7 +25,7 @@ export async function GET() {
   if (health.supabase_configured) {
     try {
       // Test connection by querying a simple table
-      const { error } = await supabase.from('leads').select('count').limit(1);
+      const { error } = await getSupabaseClient().from('leads').select('count').limit(1);
       if (error && error.code !== 'PGRST116') {
         // PGRST116 is "relation does not exist" - table might not be created yet
         throw error;

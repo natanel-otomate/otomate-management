@@ -1,38 +1,42 @@
 import { NextResponse } from 'next/server';
-import { kv } from '@vercel/kv';
+import { supabase } from '@/lib/supabase';
 
 interface HealthStatus {
-  kv_configured: boolean;
-  kv_url_set: boolean;
-  kv_token_set: boolean;
+  supabase_configured: boolean;
+  supabase_url_set: boolean;
+  supabase_key_set: boolean;
   environment: string | undefined;
-  kv_connection?: string;
-  kv_error?: string;
+  supabase_connection?: string;
+  supabase_error?: string;
 }
 
 export async function GET() {
   const health: HealthStatus = {
-    kv_configured: !!(
-      process.env.KV_REST_API_URL &&
-      process.env.KV_REST_API_TOKEN
+    supabase_configured: !!(
+      process.env.NEXT_PUBLIC_SUPABASE_URL &&
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     ),
-    kv_url_set: !!process.env.KV_REST_API_URL,
-    kv_token_set: !!process.env.KV_REST_API_TOKEN,
+    supabase_url_set: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+    supabase_key_set: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     environment: process.env.NODE_ENV,
   };
 
-  // Try to test KV connection
-  if (health.kv_configured) {
+  // Try to test Supabase connection
+  if (health.supabase_configured) {
     try {
-      // Test by trying to get a non-existent key (should return null, not error)
-      await kv.get('__health_check__');
-      health.kv_connection = 'OK';
+      // Test connection by querying a simple table
+      const { error } = await supabase.from('leads').select('count').limit(1);
+      if (error && error.code !== 'PGRST116') {
+        // PGRST116 is "relation does not exist" - table might not be created yet
+        throw error;
+      }
+      health.supabase_connection = 'OK';
     } catch (error) {
-      health.kv_connection = 'FAILED';
-      health.kv_error = error instanceof Error ? error.message : 'Unknown error';
+      health.supabase_connection = 'FAILED';
+      health.supabase_error = error instanceof Error ? error.message : 'Unknown error';
     }
   } else {
-    health.kv_connection = 'NOT_CONFIGURED';
+    health.supabase_connection = 'NOT_CONFIGURED';
   }
 
   return NextResponse.json(health);

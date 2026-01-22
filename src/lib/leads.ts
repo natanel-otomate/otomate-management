@@ -1,4 +1,4 @@
-import { kv } from '@vercel/kv';
+import { supabase } from './supabase';
 
 export interface Lead {
   id: string;
@@ -11,70 +11,55 @@ export interface Lead {
   created_at: string;
 }
 
-const LEADS_KEY = 'leads';
-
-// Check if KV is configured
-function isKvConfigured(): boolean {
-  return !!(
-    kv &&
-    process.env.KV_REST_API_URL &&
-    process.env.KV_REST_API_TOKEN
-  );
-}
-
-// In-memory fallback for development
-let memoryStore: Lead[] = [];
-
-// Read leads from KV store
+// Read all leads from Supabase
 export async function getLeads(): Promise<Lead[]> {
-  if (!isKvConfigured()) {
-    console.warn('Vercel KV not configured, using in-memory storage (data will not persist)');
-    return memoryStore;
-  }
-
   try {
-    const leads = await kv.get<Lead[]>(LEADS_KEY);
-    return leads || [];
-  } catch (error) {
-    console.error('Error fetching leads from KV:', error);
-    // Fallback to memory store if KV fails
-    if (error instanceof Error) {
-      console.error('KV Error details:', error.message);
-    }
-    return memoryStore;
-  }
-}
+    const { data, error } = await supabase
+      .from('leads')
+      .select('*')
+      .order('created_at', { ascending: false });
 
-// Save leads to KV store
-export async function saveLeads(leads: Lead[]): Promise<void> {
-  if (!isKvConfigured()) {
-    console.warn('Vercel KV not configured, using in-memory storage (data will not persist)');
-    memoryStore = leads;
-    return;
-  }
-
-  try {
-    await kv.set(LEADS_KEY, leads);
-  } catch (error) {
-    console.error('Error saving leads to KV:', error);
-    if (error instanceof Error) {
-      const errorMsg = `Failed to save leads: ${error.message}`;
-      console.error('KV Error details:', errorMsg);
-      throw new Error(errorMsg);
+    if (error) {
+      console.error('Error fetching leads:', error);
+      throw error;
     }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching leads from Supabase:', error);
     throw error;
   }
 }
 
-// Add a new lead
+// Add a new lead to Supabase
 export async function addLead(lead: Omit<Lead, 'id' | 'created_at'>): Promise<Lead> {
-  const leads = await getLeads();
-  const newLead: Lead = {
-    ...lead,
-    id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-    created_at: new Date().toISOString(),
-  };
-  leads.push(newLead);
-  await saveLeads(leads);
-  return newLead;
+  try {
+    const { data, error } = await supabase
+      .from('leads')
+      .insert([
+        {
+          name: lead.name,
+          company: lead.company,
+          email: lead.email,
+          budget_bracket: lead.budget_bracket,
+          status: lead.status,
+          pain_point: lead.pain_point || '',
+        },
+      ])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating lead:', error);
+      throw error;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Error adding lead to Supabase:', error);
+    if (error instanceof Error) {
+      throw new Error(`Failed to create lead: ${error.message}`);
+    }
+    throw error;
+  }
 }

@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
       { 
         error: 'Failed to create lead',
         details: errorMessage,
-        hint: 'Make sure Vercel KV is configured with KV_REST_API_URL and KV_REST_API_TOKEN environment variables'
+        hint: 'Make sure Supabase is configured with NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY environment variables'
       },
       { status: 500 }
     );

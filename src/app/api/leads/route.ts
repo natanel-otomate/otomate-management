@@ -58,8 +58,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(newLead, { status: 201 });
   } catch (error) {
     console.error('Error creating lead:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { error: 'Failed to create lead' },
+      { 
+        error: 'Failed to create lead',
+        details: errorMessage,
+        hint: 'Make sure Vercel KV is configured with KV_REST_API_URL and KV_REST_API_TOKEN environment variables'
+      },
       { status: 500 }
     );
   }

@@ -5,9 +5,9 @@ import {
   listProjectsByClient,
   listSubtasksByTaskIds,
   listTasksByProjectIds,
-} from '@/lib/clients';
-import { lastNMonthsUTC, toYearMonth } from '@/lib/dates';
-import { buildExpectedByMonth } from '@/lib/forecast';
+} from '../../../../../lib/clients';
+import { lastNMonthsUTC, toYearMonth } from '../../../../../lib/dates';
+import { buildExpectedByMonth } from '../../../../../lib/forecast';
 
 export async function GET(
   _req: Request,

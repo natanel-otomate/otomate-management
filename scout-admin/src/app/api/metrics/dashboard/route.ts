@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { getSupabaseClient } from '@/lib/supabase';
-import { lastNMonthsUTC, toYearMonth } from '@/lib/dates';
-import { buildExpectedByMonth } from '@/lib/forecast';
-import { safeInt } from '@/lib/money';
+import { getSupabaseClient } from '../../../../lib/supabase';
+import { lastNMonthsUTC, toYearMonth } from '../../../../lib/dates';
+import { buildExpectedByMonth } from '../../../../lib/forecast';
+import { safeInt } from '../../../../lib/money';
 
 export async function GET(req: Request) {
   try {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient, listClients } from '@/lib/clients';
+import { createClient, listClients } from '../../../lib/clients';
 
 export async function GET() {
   try {

@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
-import { MiniLineChart } from '@/components/MiniLineChart';
-import { formatMoneyFromCents } from '@/lib/money';
+import { MiniLineChart } from '../../components/MiniLineChart';
+import { formatMoneyFromCents } from '../../lib/money';
 
 type DashboardResponse = {
   series: { ym: string; expected_cents: number; actual_cents: number }[];

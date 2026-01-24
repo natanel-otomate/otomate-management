@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getClient } from '@/lib/clients';
+import { getClient } from '../../../../lib/clients';
 
 export async function GET(
   _req: Request,

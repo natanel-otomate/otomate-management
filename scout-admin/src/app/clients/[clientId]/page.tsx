@@ -2,9 +2,9 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
-import { Tabs } from '@/components/Tabs';
-import { MiniLineChart } from '@/components/MiniLineChart';
-import { formatMoneyFromCents } from '@/lib/money';
+import { Tabs } from '../../../components/Tabs';
+import { MiniLineChart } from '../../../components/MiniLineChart';
+import { formatMoneyFromCents } from '../../../lib/money';
 
 type Client = {
   id: string;

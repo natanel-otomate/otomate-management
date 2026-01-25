@@ -11,19 +11,21 @@ import { buildExpectedByMonth } from '../../../../../lib/forecast';
 
 export async function GET(
   _req: Request,
-  { params }: { params: { clientId: string } }
+  { params }: { params: Promise<{ clientId: string }> }
 ) {
   try {
-    const client = await getClient(params.clientId);
+    const { clientId } = await params;
+
+    const client = await getClient(clientId);
     if (!client) {
       return NextResponse.json({ error: 'Client not found' }, { status: 404 });
     }
 
     const months = lastNMonthsUTC(12);
-    const projects = await listProjectsByClient(params.clientId);
+    const projects = await listProjectsByClient(clientId);
     const tasks = await listTasksByProjectIds(projects.map((p) => p.id));
     const subtasks = await listSubtasksByTaskIds(tasks.map((t) => t.id));
-    const billing = await listBillingByClient(params.clientId);
+    const billing = await listBillingByClient(clientId);
 
     // Actual payments by month (paid invoices)
     const actualByYm: Record<string, number> = {};

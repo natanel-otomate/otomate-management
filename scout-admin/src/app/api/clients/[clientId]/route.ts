@@ -3,10 +3,11 @@ import { getClient } from '../../../../lib/clients';
 
 export async function GET(
   _req: Request,
-  { params }: { params: { clientId: string } }
+  { params }: { params: Promise<{ clientId: string }> }
 ) {
   try {
-    const client = await getClient(params.clientId);
+    const { clientId } = await params;
+    const client = await getClient(clientId);
     if (!client) {
       return NextResponse.json({ error: 'Client not found' }, { status: 404 });
     }

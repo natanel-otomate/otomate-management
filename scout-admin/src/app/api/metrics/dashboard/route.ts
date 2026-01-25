@@ -3,6 +3,7 @@ import { getSupabaseClient } from '../../../../lib/supabase';
 import { lastNMonthsUTC, toYearMonth } from '../../../../lib/dates';
 import { buildExpectedByMonth } from '../../../../lib/forecast';
 import { safeInt } from '../../../../lib/money';
+import { toSafeErrorDetails } from '../../../../lib/apiErrors';
 
 export async function GET(req: Request) {
   try {
@@ -95,9 +96,9 @@ export async function GET(req: Request) {
       },
     });
   } catch (error) {
-    const details = error instanceof Error ? error.message : 'Unknown error';
+    const detailsObj = toSafeErrorDetails(error);
     return NextResponse.json(
-      { error: 'Failed to compute dashboard metrics', details },
+      { error: 'Failed to compute dashboard metrics', details: detailsObj.message, ...detailsObj },
       { status: 500 }
     );
   }

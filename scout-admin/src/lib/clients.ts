@@ -1,5 +1,6 @@
 import { getSupabaseClient } from './supabase';
 import { safeInt } from './money';
+import { isMissingTableError } from './apiErrors';
 
 export type Client = {
   id: string;
@@ -165,8 +166,9 @@ export async function listBillingByClient(clientId: string): Promise<{
         .order('created_at', { ascending: false }),
     ]);
 
-  if (prError) throw prError;
-  if (invError) throw invError;
+  // If billing tables weren't created yet, don't break the whole client details page.
+  if (prError && !isMissingTableError(prError)) throw prError;
+  if (invError && !isMissingTableError(invError)) throw invError;
 
   const payment_requests = (prs || []).map((r: any) => ({
     ...(r as PaymentRequest),

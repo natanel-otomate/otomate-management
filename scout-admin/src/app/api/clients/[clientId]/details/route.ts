@@ -8,6 +8,7 @@ import {
 } from '../../../../../lib/clients';
 import { lastNMonthsUTC, toYearMonth } from '../../../../../lib/dates';
 import { buildExpectedByMonth } from '../../../../../lib/forecast';
+import { toSafeErrorDetails } from '../../../../../lib/apiErrors';
 
 export async function GET(
   _req: Request,
@@ -76,9 +77,9 @@ export async function GET(
       },
     });
   } catch (error) {
-    const details = error instanceof Error ? error.message : 'Unknown error';
+    const detailsObj = toSafeErrorDetails(error);
     return NextResponse.json(
-      { error: 'Failed to fetch client details', details },
+      { error: 'Failed to fetch client details', details: detailsObj.message, ...detailsObj },
       { status: 500 }
     );
   }

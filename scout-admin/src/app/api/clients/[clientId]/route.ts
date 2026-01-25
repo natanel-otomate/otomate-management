@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getClient } from '../../../../lib/clients';
+import { toSafeErrorDetails } from '../../../../lib/apiErrors';
 
 export async function GET(
   _req: Request,
@@ -13,9 +14,9 @@ export async function GET(
     }
     return NextResponse.json(client);
   } catch (error) {
-    const details = error instanceof Error ? error.message : 'Unknown error';
+    const detailsObj = toSafeErrorDetails(error);
     return NextResponse.json(
-      { error: 'Failed to fetch client', details },
+      { error: 'Failed to fetch client', details: detailsObj.message, ...detailsObj },
       { status: 500 }
     );
   }

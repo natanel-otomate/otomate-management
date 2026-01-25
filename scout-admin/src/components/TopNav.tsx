@@ -22,10 +22,7 @@ function NavLink({
 
 export function TopNav() {
   return (
-    <header
-      data-topnav="1"
-      className="sticky top-0 z-50 border-b border-zinc-900 bg-black/80 backdrop-blur"
-    >
+    <header className="sticky top-0 z-50 border-b border-zinc-900 bg-black/80 backdrop-blur">
       <div className="mx-auto max-w-7xl px-4 sm:px-8">
         <div className="flex h-14 items-center justify-between gap-4">
           <Link

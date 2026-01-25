@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { Tabs } from '../../../components/Tabs';
 import { MiniLineChart } from '../../../components/MiniLineChart';
@@ -73,11 +74,9 @@ type ClientDetails = {
 
 type TabId = 'dashboard' | 'projects' | 'billing';
 
-export default function ClientDetailPage({
-  params,
-}: {
-  params: { clientId: string };
-}) {
+export default function ClientDetailPage() {
+  const params = useParams<{ clientId?: string }>();
+  const clientId = params?.clientId;
   const [tab, setTab] = useState<TabId>('dashboard');
   const [data, setData] = useState<ClientDetails | null>(null);
   const [loading, setLoading] = useState(true);
@@ -87,13 +86,19 @@ export default function ClientDetailPage({
     (async () => {
       setLoading(true);
       setError(null);
-      const res = await fetch(`/api/clients/${params.clientId}/details`, {
+      if (!clientId) {
+        setError('Missing client id in route.');
+        setData(null);
+        setLoading(false);
+        return;
+      }
+
+      const res = await fetch(`/api/clients/${encodeURIComponent(clientId)}/details`, {
         cache: 'no-store',
       });
-      const json = await res.json();
-      if (res.ok) {
-        setData(json);
-      } else {
+      const json = await res.json().catch(() => ({}));
+      if (res.ok) setData(json);
+      else {
         const msg = json?.error || 'Failed to load client';
         const details = json?.details ? ` (${json.details})` : '';
         setError(`${msg}${details}`);
@@ -101,7 +106,7 @@ export default function ClientDetailPage({
       }
       setLoading(false);
     })();
-  }, [params.clientId]);
+  }, [clientId]);
 
   const tasksByProject = useMemo(() => {
     const map = new Map<string, Task[]>();

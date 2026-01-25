@@ -1,0 +1,7 @@
+{
+  "installCommand": "cd scout-admin && npm install",
+  "buildCommand": "cd scout-admin && npm run build",
+  "devCommand": "cd scout-admin && npm run dev",
+  "outputDirectory": "scout-admin/.next",
+  "framework": "nextjs"
+}

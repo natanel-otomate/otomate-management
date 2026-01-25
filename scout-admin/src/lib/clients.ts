@@ -94,8 +94,11 @@ export async function getClient(clientId: string): Promise<Client | null> {
     .eq('id', clientId)
     .single();
   if (error) {
-    // Not found
-    return null;
+    // Supabase/PostgREST uses PGRST116 for "0 rows" on .single()
+    // Only treat that as "not found"; otherwise bubble up the real error.
+    // This prevents permission/schema/config errors from being misreported as 404s.
+    if ((error as any).code === 'PGRST116') return null;
+    throw error;
   }
   return data as Client;
 }

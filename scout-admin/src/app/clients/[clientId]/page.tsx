@@ -81,16 +81,24 @@ export default function ClientDetailPage({
   const [tab, setTab] = useState<TabId>('dashboard');
   const [data, setData] = useState<ClientDetails | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
       setLoading(true);
+      setError(null);
       const res = await fetch(`/api/clients/${params.clientId}/details`, {
         cache: 'no-store',
       });
       const json = await res.json();
-      if (res.ok) setData(json);
-      else alert(json?.error || 'Failed to load client');
+      if (res.ok) {
+        setData(json);
+      } else {
+        const msg = json?.error || 'Failed to load client';
+        const details = json?.details ? ` (${json.details})` : '';
+        setError(`${msg}${details}`);
+        setData(null);
+      }
       setLoading(false);
     })();
   }, [params.clientId]);
@@ -125,7 +133,9 @@ export default function ClientDetailPage({
         <Link href="/clients" className="text-zinc-300 hover:text-zinc-50">
           ← Back
         </Link>
-        <div className="mt-6 text-zinc-400">Client not found.</div>
+        <div className="mt-6 text-zinc-400">
+          {error || 'Client not found.'}
+        </div>
       </div>
     );
   }
